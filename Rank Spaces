@@ -1,0 +1,9 @@
+def taxicabDistance(cell):
+    dist = abs(cell[0] - shopEntrance[0]) + abs(cell[1] - shopEntrance[1])
+    return dist
+
+def compareTaxicabDistance(cell1, cell2):
+    return taxicabDistance(cell1) - taxicabDistance(cell2)
+
+parkingSpaces = sorted(parkingSpaces, key=taxicabDistance)
+parkingSpaces
