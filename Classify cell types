@@ -35,4 +35,12 @@ def classify_cells():
     return walls, shopEntrance, parkingSpaces, roads_up, roads_left, roads_right, roads_down
                 
 cellTypes = classify_cells()
-cellTypes
+walls = cellTypes[0]
+shopEntrance = cellTypes[1]
+parkingSpaces = cellTypes[2]
+roads_up = cellTypes[3]
+roads_left = cellTypes[4]
+roads_right = cellTypes[5]
+roads_down = cellTypes[6]
+
+print(cellTypes)
