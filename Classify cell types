@@ -1,0 +1,14 @@
+walls = []
+roads = []
+x_max = len(grid)
+y_max = len(grid[0])
+
+for x in range(x_max):
+    for y in range(y_max):
+        currentSquare = grid[x][y]
+        if "W" in currentSquare:
+            walls.append([x,y])
+        elif "R" in currentSquare:
+            roads.append([x,y])
+        elif "P" in currentSquare:
+            endPoint = [x,y]
