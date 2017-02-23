@@ -1,12 +1,13 @@
-grid = [[["RL"], ["RL"], ["W"], ["W"], ["W"], ["RU"], ["RR"], ["RR"]],
+grid = [[["RL"], ["RL"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
         [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
         [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
-        [["RD"], ["W"], ["W"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
+        [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
         [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
         [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
 
 def classify_cells():
     walls = []
+    parkingSpaces = []
     roads_up = []
     roads_left = []
     roads_right = []
@@ -19,6 +20,8 @@ def classify_cells():
             currentSquare = grid[x][y]
             if "W" in currentSquare:
                 walls.append([x,y])
+            if "E" in currentSquare:
+                shopEntrance = [x,y]
             if "RU" in currentSquare:
                 roads_up.append([x,y])
             if "RL" in currentSquare:
@@ -28,8 +31,8 @@ def classify_cells():
             if "RD" in currentSquare:
                 roads_down.append([x,y])
             if "P" in currentSquare:
-                endPoint = [x,y]
-    return walls, endPoint, roads_up, roads_left, roads_right, roads_down
+                parkingSpaces.append([x,y])
+    return walls, shopEntrance, parkingSpaces, roads_up, roads_left, roads_right, roads_down
                 
 cellTypes = classify_cells()
 cellTypes
