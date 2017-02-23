@@ -1,4 +1,4 @@
-def classify_cells
+def classify_cells(grid):
     walls = []
     roads = []
     x_max = len(grid)
@@ -13,3 +13,4 @@ def classify_cells
                 roads.append([x,y])
             elif "P" in currentSquare:
                 endPoint = [x,y]
+    return walls, roads, endPoint
