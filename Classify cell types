@@ -5,42 +5,50 @@ grid = [[["RL"], ["RL"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
         [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
         [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
 
+x_max = len(grid)
+y_max = len(grid[0])
+cells = []
+
+class cell():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.parent = None
+        self.g = 0
+        self.h = 0
+        self.f = 0
+        self.up = False
+        self.left = False
+        self.right = False
+        self.down = False
+
 def classify_cells():
     walls = []
     parkingSpaces = []
-    roads_up = []
-    roads_left = []
-    roads_right = []
-    roads_down = []
-    x_max = len(grid)
-    y_max = len(grid[0])
-
+    
     for x in range(x_max):
         for y in range(y_max):
             currentSquare = grid[x][y]
+            cells.append(cell(x,y))
             if "W" in currentSquare:
                 walls.append([x,y])
             if "E" in currentSquare:
                 shopEntrance = [x,y]
             if "RU" in currentSquare:
-                roads_up.append([x,y])
+                cell.up = True
             if "RL" in currentSquare:
-                roads_left.append([x,y])
+                cell.left = True
             if "RR" in currentSquare:
-                roads_right.append([x,y])
+                cell.right = True
             if "RD" in currentSquare:
-                roads_down.append([x,y])
+                cell.down = True
             if "P" in currentSquare:
                 parkingSpaces.append([x,y])
-    return walls, shopEntrance, parkingSpaces, roads_up, roads_left, roads_right, roads_down
+    return walls, shopEntrance, parkingSpaces
                 
 cellTypes = classify_cells()
 walls = cellTypes[0]
 shopEntrance = cellTypes[1]
 parkingSpaces = cellTypes[2]
-roads_up = cellTypes[3]
-roads_left = cellTypes[4]
-roads_right = cellTypes[5]
-roads_down = cellTypes[6]
 
-print(cellTypes)
+cellTypes
