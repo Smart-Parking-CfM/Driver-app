@@ -103,7 +103,6 @@ def getAdjacent(cell):
 def display_path():
     path = []
     currentCell = end
-    print("Path:")
     while currentCell.parent is not start:
         currentCell = currentCell.parent
         path.append([currentCell.i, currentCell.j])
@@ -129,7 +128,7 @@ def process():
         if cell is end:
             output = display_path()
             output.reverse()
-            print(output)
+            print("Path: " + str(output))
             break
         adj_cells = getAdjacent(cell)
         for adj_cell in adj_cells:
