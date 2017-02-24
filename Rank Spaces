@@ -5,5 +5,12 @@ def taxicabDistance(cell):
 def compareTaxicabDistance(cell1, cell2):
     return taxicabDistance(cell1) - taxicabDistance(cell2)
 
-parkingSpaces = sorted(parkingSpaces, key=taxicabDistance)
+for i in parkingSpaces:
+    i.append(taxicabDistance(i))
+
+parkingSpaces = sorted(parkingSpaces, key=lambda space: space[2])
+
+for i in parkingSpaces:
+    i.remove(i[-1])
+
 parkingSpaces
