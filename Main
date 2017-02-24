@@ -1,12 +1,12 @@
-grid = [[["RL"], ["RL"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
+grid = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
         [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
         [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
         [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
         [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
         [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
 
-j_max = len(grid[0])
 i_max = len(grid)
+j_max = len(grid[0])
 cells = []
 
 class cell():
@@ -31,6 +31,8 @@ def classify_cells():
             currentCell = cell(i,j)
             if "E" in currentSquare:
                 shopEntrance = [i,j]
+            if "S" in currentSquare:
+                startLocation = [i,j]
             if "RU" in currentSquare:
                 currentCell.up = True
             if "RL" in currentSquare:
@@ -42,13 +44,14 @@ def classify_cells():
             if "P" in currentSquare:
                 parkingSpaces.append([i,j])
             grid[i][j].append(currentCell)
-    return  shopEntrance, parkingSpaces
+    return  shopEntrance, parkingSpaces, startLocation
                 
 cellTypes = classify_cells()
 shopEntrance = cellTypes[0]
 parkingSpaces = cellTypes[1]
+startLocation = cellTypes[2]
 
-print("Shop entrance: " + str(shopEntrance) + "\nParking spaces: " + str(parkingSpaces))
+print("Shop entrance: " + str(shopEntrance) + "\nParking spaces: " + str(parkingSpaces) + "\nStart location: " + str(startLocation))
 
 def taxicabDistance(cell):
     dist = abs(cell[0] - shopEntrance[0]) + abs(cell[1] - shopEntrance[1])
@@ -65,44 +68,76 @@ parkingSpaces = sorted(parkingSpaces, key=lambda space: space[2])
 for i in parkingSpaces:
     i.remove(i[-1])
 
-start = parkingSpaces[0]
-
 print("Ordered parking spaces: " + str(parkingSpaces))
-
-def h(cell):
-    return abs(cell.i - parkingSpaces[0][0]) + abs(cell.j - parkingSpaces[0][1])
 
 def getCell(i, j):
     return grid[i][j][1]
 
-def getAdjacent(currentCell):
-    adjCells = []
-    if currentCell.i > 0:
-        if getCell(currentCell.i-1, currentCell.j).up:
-            adjCells.append(getCell(currentCell.i-1, currentCell.j))
-            
-    if currentCell.j > 0:
-        if getCell(currentCell.i, currentCell.j-1).left:
-            adjCells.append(getCell(currentCell.i, currentCell.j-1))
-            
-    if currentCell.i < i_max:
-        if getCell(currentCell.i+1, currentCell.j).down:
-            adjCells.append(getCell(currentCell.i+1, currentCell.j))
+start = getCell(startLocation[0], startLocation[1])
 
-    if currentCell.j < j_max:
-        if getCell(currentCell.i, currentCell.j+1).right:
-            adjCells.append(getCell(currentCell.i, currentCell.j+1))
+end = getCell(parkingSpaces[0][0], parkingSpaces[0][1])
+
+def h(cell):
+    return abs(cell.i - end.i) + abs(cell.j - end.j)
+
+def getAdjacent(cell):
+    adjCells = []
+    if cell.i > 0:
+        if getCell(cell.i-1, cell.j).up or getCell(cell.i-1, cell.j) is end:
+            adjCells.append(getCell(cell.i-1, cell.j))
+            
+    if cell.j > 0:
+        if getCell(cell.i, cell.j-1).left or getCell(cell.i, cell.j-1) is end:
+            adjCells.append(getCell(cell.i, cell.j-1))
+            
+    if cell.i < i_max - 1:
+        if getCell(cell.i+1, cell.j).down or getCell(cell.i+1, cell.j) is end:
+            adjCells.append(getCell(cell.i+1, cell.j))
+
+    if cell.j < j_max - 1:
+        if getCell(cell.i, cell.j+1).right or getCell(cell.i, cell.j+1) is end:
+            adjCells.append(getCell(cell.i, cell.j+1))
             
     return adjCells
-    
+
 def display_path():
-    path = []
-    currentCell = getCell(parkingSpaces[0][0], parkingSpaces[0][1])
-    print("Path:\n")
-    while currentCell.parent is not getCell(start[0], start[1]):
+    currentCell = end
+    print("Path:")
+    while currentCell.parent is not start:
         currentCell = currentCell.parent
         print([currentCell.i, currentCell.j])
+    return
 
-def pathfind(grid, start, end):
-    openList = []
-    closedList = []
+def updateCell(adj, cell):
+    adj.g = cell.g + 1
+    adj.h = h(adj)
+    adj.parent = cell
+    adj.f = adj.g + adj.h
+    return
+
+def process():
+    opened = []
+    closed = set()
+    cells = []
+    path = []
+    opened.append((start.f, start))
+    opened = sorted(opened, key=lambda x: x[1])
+    while len(opened):
+        f, cell = opened.pop(0)
+        closed.add(cell)
+        if cell is end:
+            display_path()
+            break
+        adj_cells = getAdjacent(cell)
+        for adj_cell in adj_cells:
+            if adj_cell not in closed:
+                if (adj_cell.f, adj_cell) in opened:
+                    if adj_cell.g > cell.g + 1:
+                        updateCell(adj_cell, cell)
+                else:
+                    updateCell(adj_cell, cell)
+                    opened.append((adj_cell.f, adj_cell))
+                    opened = sorted(opened, key=lambda x: x[0])
+    return
+
+process()
