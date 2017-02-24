@@ -107,6 +107,7 @@ def display_path():
     while currentCell.parent is not start:
         currentCell = currentCell.parent
         path.append([currentCell.i, currentCell.j])
+    path.reverse()
     return path
 
 def updateCell(adj, cell):
