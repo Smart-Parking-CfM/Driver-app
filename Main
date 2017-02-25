@@ -98,6 +98,7 @@ def process():
     opened = []
     closed = set()
     cells = []
+    solved = False
     
     cellTypes = classify_cells()
     shopEntrance = cellTypes[0]
@@ -135,6 +136,7 @@ def process():
         closed.add(cell)
         if cell is end:
             print("Path: " + str(display_path()))
+            solved = True
             break
         adj_cells = getAdjacent(cell)
         for adj_cell in adj_cells:
@@ -146,6 +148,8 @@ def process():
                     updateCell(adj_cell, cell)
                     opened.append((adj_cell.f, adj_cell))
                     opened = sorted(opened, key=lambda x: x[0])
+    if not solved:
+        print("Unable to find a path")
     return
 
 process()
