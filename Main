@@ -1,11 +1,17 @@
 def main():
     
-    grid = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
-        [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
-        [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
-        [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
-        [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
-        [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
+#    grid = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
+#        [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+#        [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+#       [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
+#        [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
+#        [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
+    
+    grid = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
+ [["RU"], ["W"], ["RD"], ["W"], ["P"]],
+ [["RU"], ["RR"], ["RR", "RD"], ["E"], ["RU"]],
+ [["RU"], ["W"], ["RD"], ["W"], ["RU"]],
+ [["S"], ["W"], ["RD"], ["RR"], ["RR"]]]
 
     class cell():
         def __init__(self, i, j):
@@ -21,8 +27,9 @@ def main():
             self.down = False
 
     def classify_cells():
-        startLocation = None
+        startLocation = []
         parkingSpaces = []
+        shopEntrance = []
         for j in range(j_max):
             for i in range(i_max):
                 currentSquare = grid[i][j]
@@ -52,7 +59,7 @@ def main():
         return taxicabDistance(cell1) - taxicabDistance(cell2)
 
     def getCell(i, j):
-        return grid[i][j][1]
+        return grid[i][j][-1]
 
     def h(cell):
         return abs(cell.i - end.i) + abs(cell.j - end.j)
@@ -84,6 +91,8 @@ def main():
             currentCell = currentCell.parent
             path.append([currentCell.i, currentCell.j])
         path.reverse()
+        path.insert(0, [start.i, start.j])
+        path.append([end.i, end.j])
         return path
 
     def updateCell(adj, cell):
@@ -104,20 +113,13 @@ def main():
     shopEntrance = cellTypes[0]
     parkingSpaces = cellTypes[1]
     startLocation = cellTypes[2]
+    #Information
     
     print("Shop entrance: " + str(shopEntrance) + "\nParking spaces: " + str(parkingSpaces) + "\nStart location: " + str(startLocation))
-    
-    for i in parkingSpaces:
-        i.append(taxicabDistance(i))
-        
-    parkingSpaces = sorted(parkingSpaces, key=lambda space: space[2])
-    
-    for i in parkingSpaces:
-        i.remove(i[-1])
-        
+          
     print("Ordered parking spaces: " + str(parkingSpaces))
     
-    if startLocation is not None:
+    if len(startLocation) != 0:
         start = getCell(startLocation[0], startLocation[1])
     else:
         print("Starting location not found")
@@ -128,7 +130,21 @@ def main():
     else:
         print("Parking spaces not found")
         return
+
+    if len(shopEntrance) != 0:
+        test = getCell(shopEntrance[0], shopEntrance[1]) #**************************
+    else:
+        print("Shop entrance not found")
+        return
         
+    for i in parkingSpaces:
+        i.append(taxicabDistance(i))
+        
+    parkingSpaces = sorted(parkingSpaces, key=lambda space: space[2])
+    
+    for i in parkingSpaces:
+        i.remove(i[-1])
+    
     opened.append((start.f, start))
     opened = sorted(opened, key=lambda x: x[1])
     while len(opened):
