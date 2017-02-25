@@ -1,4 +1,4 @@
-def process():
+def main():
     
     grid = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
         [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
@@ -152,4 +152,4 @@ def process():
         print("Unable to find a path")
     return
 
-process()
+main()
