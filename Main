@@ -1,4 +1,4 @@
-def main():
+def main(disabled=False):
     
 #    grid = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
 #        [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
@@ -47,7 +47,11 @@ def main():
                 if "RD" in currentSquare:
                     currentCell.down = True
                 if "P" in currentSquare:
-                    parkingSpaces.append([i,j])
+                    if disabled == False:
+                        parkingSpaces.append([i,j])
+                if "PD" in currentSquare:
+                    if disabled == True:
+                        parkingSpaces.append([i,j])
                 grid[i][j].append(currentCell)
         return  shopEntrance, parkingSpaces, startLocation
                 
