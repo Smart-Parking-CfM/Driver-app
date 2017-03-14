@@ -185,5 +185,6 @@ output = []
 for i in levels:
     grid = i
     output.append(main())
+output = sorted(output, key=lambda x: x[0])
     
-print(output)
+print("Path: " + str(output[0][1]))
