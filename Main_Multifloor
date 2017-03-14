@@ -1,17 +1,17 @@
-grid1 = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
+grid0 = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
     [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
     [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
     [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
     [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
     [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
     
-grid2 = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
+grid1 = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
 [["RU"], ["W"], ["RD"], ["W"], ["P"]],
 [["RU"], ["RR"], ["RR", "RD"], ["E"], ["RU"]],
 [["RU"], ["W"], ["RD"], ["W"], ["RU"]],
 [["S"], ["W"], ["RD"], ["RR"], ["RR"]]]
     
-grid = grid1
+levels = [grid0, grid1]
 
 class cell():
     def __init__(self, i, j):
@@ -97,7 +97,7 @@ def display_path(start, end):
     path.append([end.i, end.j])
     return path
 
-def updateCell(adj_cell, cell, end): #Adj Issue
+def updateCell(adj_cell, cell, end):
     adj_cell.g = cell.g + 1
     adj_cell.h = h(adj_cell, end)
     adj_cell.parent = cell
@@ -120,9 +120,9 @@ def main():
     startLocation = cellTypes[2]
     #Information
     
-    print("Shop entrance: " + str(shopEntrance) + "\nParking spaces: " + str(parkingSpaces) + "\nStart location: " + str(startLocation))
+    #print("Shop entrance: " + str(shopEntrance) + "\nParking spaces: " + str(parkingSpaces) + "\nStart location: " + str(startLocation))
           
-    print("Ordered parking spaces: " + str(parkingSpaces))
+    #print("Ordered parking spaces: " + str(parkingSpaces))
 
     #Checks below
     
@@ -149,7 +149,7 @@ def main():
         
     parkingSpaces = sorted(parkingSpaces, key=lambda space: space[2])
     shortestTaxicab = parkingSpaces[0][-1]
-    print(shortestTaxicab)
+    #print(shortestTaxicab)
     
     for i in parkingSpaces:
         i.remove(i[-1])
@@ -160,7 +160,8 @@ def main():
         f, cell = opened.pop(0)
         closed.add(cell)
         if cell is end:
-            print("Path: " + str(display_path(start, end)))
+            final_Path = display_path(start, end)
+            #print("Path: " + str(final_Path))
             solved = True
             break
         adj_cells = getAdjacent(cell, i_max, j_max, end)
@@ -178,8 +179,11 @@ def main():
         print("Unable to find a path")
         return
     
-    return 
+    return shortestTaxicab, final_Path
 
-levels = []
-
-main()
+output = []
+for i in levels:
+    grid = i
+    output.append(main())
+    
+print(output)
