@@ -1,0 +1,185 @@
+grid1 = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
+    [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+    [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+    [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
+    [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
+    [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
+    
+grid2 = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
+[["RU"], ["W"], ["RD"], ["W"], ["P"]],
+[["RU"], ["RR"], ["RR", "RD"], ["E"], ["RU"]],
+[["RU"], ["W"], ["RD"], ["W"], ["RU"]],
+[["S"], ["W"], ["RD"], ["RR"], ["RR"]]]
+    
+grid = grid1
+
+class cell():
+    def __init__(self, i, j):
+        self.i = i
+        self.j = j
+        self.parent = None
+        self.g = 0
+        self.h = 0
+        self.f = 0
+        self.up = False
+        self.left = False
+        self.right = False
+        self.down = False
+
+def getCell(i, j):
+    return grid[i][j][-1]
+            
+def classify_cells(i_max, j_max, disabled=False):
+    startLocation = []
+    parkingSpaces = []
+    shopEntrance = []
+    for j in range(j_max):
+        for i in range(i_max):
+            currentSquare = grid[i][j]
+            currentCell = cell(i,j)
+            if "E" in currentSquare:
+                shopEntrance = [i,j]
+            if "S" in currentSquare:
+                startLocation = [i,j]
+            if "RU" in currentSquare:
+                currentCell.up = True
+            if "RL" in currentSquare:
+                currentCell.left = True
+            if "RR" in currentSquare:
+                currentCell.right = True
+            if "RD" in currentSquare:
+                currentCell.down = True
+            if "P" in currentSquare:
+                if disabled == False:
+                    parkingSpaces.append([i,j])
+            if "PD" in currentSquare:
+                if disabled == True:
+                    parkingSpaces.append([i,j])
+                        
+            grid[i][j].append(currentCell)
+    return  shopEntrance, parkingSpaces, startLocation
+                
+def taxicabDistance(cell, shopEntrance):
+    dist = abs(cell[0] - shopEntrance[0]) + abs(cell[1] - shopEntrance[1])
+    return dist
+
+def h(cell, end):
+    return abs(cell.i - end.i) + abs(cell.j - end.j)
+
+def getAdjacent(cell, i_max, j_max, end):
+    adjCells = []
+    if cell.i > 0:
+        if getCell(cell.i-1, cell.j).up or getCell(cell.i-1, cell.j) is end:
+            adjCells.append(getCell(cell.i-1, cell.j))
+
+    if cell.j > 0:
+        if getCell(cell.i, cell.j-1).left or getCell(cell.i, cell.j-1) is end:
+            adjCells.append(getCell(cell.i, cell.j-1))
+
+    if cell.i < i_max - 1:
+        if getCell(cell.i+1, cell.j).down or getCell(cell.i+1, cell.j) is end:
+            adjCells.append(getCell(cell.i+1, cell.j))
+
+    if cell.j < j_max - 1:
+        if getCell(cell.i, cell.j+1).right or getCell(cell.i, cell.j+1) is end:
+            adjCells.append(getCell(cell.i, cell.j+1))
+
+    return adjCells
+
+def display_path(start, end):
+    path = []
+    currentCell = end
+    while currentCell.parent is not start:
+        currentCell = currentCell.parent
+        path.append([currentCell.i, currentCell.j])
+    path.reverse()
+    path.insert(0, [start.i, start.j])
+    path.append([end.i, end.j])
+    return path
+
+def updateCell(adj_cell, cell, end): #Adj Issue
+    adj_cell.g = cell.g + 1
+    adj_cell.h = h(adj_cell, end)
+    adj_cell.parent = cell
+    adj_cell.f = adj_cell.g + adj_cell.h
+    return
+    
+#Main function
+    
+def main():
+    i_max = len(grid)
+    j_max = len(grid[0])
+    opened = []
+    closed = set()
+    cells = []
+    solved = False
+    
+    cellTypes = classify_cells(i_max, j_max)
+    shopEntrance = cellTypes[0]
+    parkingSpaces = cellTypes[1]
+    startLocation = cellTypes[2]
+    #Information
+    
+    print("Shop entrance: " + str(shopEntrance) + "\nParking spaces: " + str(parkingSpaces) + "\nStart location: " + str(startLocation))
+          
+    print("Ordered parking spaces: " + str(parkingSpaces))
+
+    #Checks below
+    
+    if len(startLocation) != 0:
+        start = getCell(startLocation[0], startLocation[1])
+    else:
+        print("Starting location not found")
+        return
+    
+    if len(parkingSpaces) != 0:
+        end = getCell(parkingSpaces[0][0], parkingSpaces[0][1])
+    else:
+        print("Parking spaces not found")
+        return
+
+    if len(shopEntrance) == 0:
+        print("Shop entrance not found")
+        return
+    
+    #Main code
+        
+    for i in parkingSpaces:
+        i.append(taxicabDistance(i, shopEntrance))
+        
+    parkingSpaces = sorted(parkingSpaces, key=lambda space: space[2])
+    shortestTaxicab = parkingSpaces[0][-1]
+    print(shortestTaxicab)
+    
+    for i in parkingSpaces:
+        i.remove(i[-1])
+    
+    opened.append((start.f, start))
+    opened = sorted(opened, key=lambda x: x[1])
+    while len(opened):
+        f, cell = opened.pop(0)
+        closed.add(cell)
+        if cell is end:
+            print("Path: " + str(display_path(start, end)))
+            solved = True
+            break
+        adj_cells = getAdjacent(cell, i_max, j_max, end)
+        for adj_cell in adj_cells:
+            if adj_cell not in closed:
+                if (adj_cell.f, adj_cell) in opened:
+                    if adj_cell.g > cell.g + 1:
+                        updateCell(adj_cell, cell, end)
+                else:
+                    updateCell(adj_cell, cell, end)
+                    opened.append((adj_cell.f, adj_cell))
+                    opened = sorted(opened, key=lambda x: x[0])
+                    
+    if not solved:
+        print("Unable to find a path")
+        return
+    
+    return 
+
+levels = []
+
+main()
