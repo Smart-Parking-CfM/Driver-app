@@ -1,18 +1,21 @@
+grid1 = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
+    [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+    [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+    [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
+    [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
+    [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
+    
+grid2 = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
+[["RU"], ["W"], ["RD"], ["W"], ["P"]],
+[["RU"], ["RR"], ["RR", "RD"], ["E"], ["RU"]],
+[["RU"], ["W"], ["RD"], ["W"], ["RU"]],
+[["S"], ["W"], ["RD"], ["RR"], ["RR"]]]
+    
+grid = grid1
+
+
 def main(disabled=False):
     
-#    grid = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
-#        [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
-#        [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
-#       [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
-#        [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
-#        [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
-    
-    grid = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
- [["RU"], ["W"], ["RD"], ["W"], ["P"]],
- [["RU"], ["RR"], ["RR", "RD"], ["E"], ["RU"]],
- [["RU"], ["W"], ["RD"], ["W"], ["RU"]],
- [["S"], ["W"], ["RD"], ["RR"], ["RR"]]]
-
     class cell():
         def __init__(self, i, j):
             self.i = i
@@ -26,6 +29,9 @@ def main(disabled=False):
             self.right = False
             self.down = False
 
+    def getCell(i, j):
+        return grid[i][j][-1]
+            
     def classify_cells():
         startLocation = []
         parkingSpaces = []
@@ -52,6 +58,7 @@ def main(disabled=False):
                 if "PD" in currentSquare:
                     if disabled == True:
                         parkingSpaces.append([i,j])
+                        
                 grid[i][j].append(currentCell)
         return  shopEntrance, parkingSpaces, startLocation
                 
@@ -61,9 +68,6 @@ def main(disabled=False):
 
     def compareTaxicabDistance(cell1, cell2):
         return taxicabDistance(cell1) - taxicabDistance(cell2)
-
-    def getCell(i, j):
-        return grid[i][j][-1]
 
     def h(cell):
         return abs(cell.i - end.i) + abs(cell.j - end.j)
@@ -135,9 +139,7 @@ def main(disabled=False):
         print("Parking spaces not found")
         return
 
-    if len(shopEntrance) != 0:
-        test = getCell(shopEntrance[0], shopEntrance[1]) #**************************
-    else:
+    if len(shopEntrance) == 0:
         print("Shop entrance not found")
         return
         
