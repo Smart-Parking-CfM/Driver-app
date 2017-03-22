@@ -156,17 +156,17 @@ def main():
         start = getCell(startLocation[0], startLocation[1])
     else:
         print("Starting location not found")
-        return #If no start location has been found, the script cannot run so the main function simply returns.
+        return False #If no start location has been found, the script cannot run so the main function simply returns.
     
     if len(parkingSpaces) != 0: #A similar check to above in order to verify that empty parking spaces exist.
         end = getCell(parkingSpaces[0][0], parkingSpaces[0][1]) #If it does exist, this parking space is chosen as the endpoint
     else:
         print("Parking spaces not found")
-        return
+        return False
 
     if len(shopEntrance) == 0: #Checks that there is a shop entrance.
         print("Shop entrance not found")
-        return
+        return False
     
     #Main code
         
@@ -203,14 +203,18 @@ def main():
                     
     if not solved: #If at the end the program, no path has been found and solved is still set to False, do the following
         print("Unable to find a path")
-        return
+        return False
     
-    return shortestTaxicab, final_Path #Return the shortest distance and the final path
+    return [shortestTaxicab, final_Path] #Return the shortest distance and the final path
 
 output = []
-for i in levels:
+for i in levels: #Iterates through each level and runs the main() function to search for the best space for that floor and its walking distance to the shop entrance
     grid = i
-    output.append(main())
-output = sorted(output, key=lambda x: x[0])
+    output.append(main()) #Store the paths and distances
+    output[-1].append(levels.index(i)) #Append to each path the level it is on
+while False in output: #Removes all instances of invalid levels where the main() function returned False
+    output.remove(False)
+output = sorted(output, key=lambda x: x[0]) #Ranks the levels of the car park by the walking distance from the best space of each to the shop entrance
     
-print("Path: " + str(output[0][1]))
+print("Level: " + str(output[0][2])) #Outputs the level
+print("Path: " + str(output[0][1])) #Outputs the path
