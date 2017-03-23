@@ -33,15 +33,12 @@ for j in range(j_max):
             grid[i][j] = [2]
             
 for n in range(len(path)):
-    ypos = path[n][1]
-    xpos = path[n][0]
-    grid[xpos][ypos] = [5]
-
+    grid[path[n][0]][path[n][1]] = [5]
+    
 A = np.matrix(np.array(grid))
     
 from pylab import *
 figure(1)
-imshow(A, interpolation='nearest')
-plt.matshow(A, vmin=0, vmax=5)      # top/bottom rows get min/max colors, respectively
+plt.matshow(A, vmin=0, vmax=3)      # top/bottom rows get min/max colors, respectively
 grid(False)
 show()
