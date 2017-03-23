@@ -1,0 +1,47 @@
+import numpy as np
+from pylab import *
+
+path = [[0, 1], [0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [4, 1], [5, 1], [5, 2], [5, 3], [5, 4], [4, 4], [3, 4], [3, 3], [3, 2]]
+
+grid = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
+    [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+    [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+    [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
+    [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
+    [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
+
+#cells key:
+#0 - space
+#1 - road
+#2 - wall
+#3 - start
+#4 - exit
+#5 - direction
+
+i_max = len(grid)
+j_max = len(grid[0])
+for j in range(j_max):
+    for i in range(i_max):
+        currentSquare = grid[i][j]
+        if "RR" in currentSquare or "RL" in currentSquare or "RU" in currentSquare or "RD" in currentSquare:
+            grid[i][j] = [1]
+        if "E" in currentSquare or "S" in currentSquare:
+            grid[i][j] = [3]
+        if "P" in currentSquare or "PD" in currentSquare: #Spaces
+            grid[i][j] = [0]
+        if "W" in currentSquare: #Walls
+            grid[i][j] = [2]
+            
+for n in range(len(path)):
+    ypos = path[n][1]
+    xpos = path[n][0]
+    grid[xpos][ypos] = [5]
+
+A = np.matrix(np.array(grid))
+    
+from pylab import *
+figure(1)
+imshow(A, interpolation='nearest')
+plt.matshow(A, vmin=0, vmax=5)      # top/bottom rows get min/max colors, respectively
+grid(False)
+show()
