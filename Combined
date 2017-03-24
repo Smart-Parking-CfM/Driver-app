@@ -1,0 +1,295 @@
+import numpy as np
+from pylab import *
+
+grid0 = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
+    [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+    [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+    [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
+    [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
+    [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
+    
+grid1 = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
+[["RU"], ["W"], ["RD"], ["W"], ["P"]],
+[["RU"], ["RR"], ["RR", "RD"], ["E"], ["RU"]],
+[["RU"], ["W"], ["RD"], ["W"], ["RU"]],
+[["S"], ["W"], ["RD"], ["RR"], ["RR"]]]
+    
+levels = [grid0, grid1]
+
+class cell():
+    """
+    This is the class for each cell of the grid.
+    """
+    def __init__(self, i, j):
+        """
+        The following default values are set upon the creation of an instance of a cell
+        """
+        self.i = i #i index of the matrix
+        self.j = j #j index of the matrix
+        self.parent = None #The parent of a cell is the one before it. The final path is determined by tracing back all parents from the end.
+        self.g = 0 #g is the distance travelled to get to that cell from the start
+        self.h = 0 #h is the taxicab distance from the cell to the end (sum of differences of i and j indices)
+        self.f = 0 #f = g + h
+        self.up = False #True if the cell can be reached by moving up from its parent, false otherwise and by default
+        self.left = False #As above, but for the left direction
+        self.right = False
+        self.down = False
+
+def getCell(i, j):
+    """
+    Returns the instance of a cell using its indices
+    """
+    return grid[i][j][-1]
+            
+def classify_cells(i_max, j_max, disabled=False):
+    """
+    Analyses the grid to determine properties of each cell, and returns groups of interest such as the shop entrance, parking spaces and the start location.
+    """
+    startLocation = [] #Creates empty lists so elements can be appended later, or if none are found then the list is returned empty
+    parkingSpaces = []
+    shopEntrance = []
+    for j in range(j_max):
+        for i in range(i_max): #This iterates through each cell of the grid
+            currentSquare = grid[i][j] #Selects a current cell to look at
+            currentCell = cell(i,j)
+            if "E" in currentSquare: #Checks if the current cell is the shop entrance
+                shopEntrance = [i,j] #If so, this is stored as a variable
+            if "S" in currentSquare: #As above, but for the start location (e.g. the entrance to a car park or a ramp)
+                startLocation = [i,j]
+            if "RU" in currentSquare: #Checks if the cell can be accessed by moving right from its parent.
+                currentCell.up = True #If so, change the up attribute to True
+            if "RL" in currentSquare: #As above but for left
+                currentCell.left = True
+            if "RR" in currentSquare:
+                currentCell.right = True
+            if "RD" in currentSquare:
+                currentCell.down = True
+            if "P" in currentSquare: #Checks if the cell is a parking space
+                if disabled == False: #If you requested a disabled space, then an ordinary one does not count as valid
+                    parkingSpaces.append([i,j]) #Appends the space's indices to the list
+            if "PD" in currentSquare: #Checks if the cell is a disabled parking space
+                if disabled == True: #Proceed only if you requested a disabled space
+                    parkingSpaces.append([i,j]) #Adds the space to the list
+                        
+            grid[i][j].append(currentCell) #Adds the instance of the current cell to its corresponding location on the grid
+    return  shopEntrance, parkingSpaces, startLocation #Returns the values
+                
+def taxicabDistance(cell, shopEntrance):
+    """
+    This calculates the taxicab distance between the given cell and the shop entrance, used to rank parking spaces by their walking distance.
+    https://en.wikipedia.org/wiki/Taxicab_geometry
+    The taxicab distance is defined as the sum of the absolute values of differences between i and j indices of two cells.
+    It is equivalent to the number of squares through which you have to travel to reach one from the other when there are no walls.
+    """
+    dist = abs(cell[0] - shopEntrance[0]) + abs(cell[1] - shopEntrance[1])
+    return dist
+
+def h(cell, end):
+    """
+    This is the h value mentioned earlier, calculated to be the taxicab distance between the current cell and the chosen parking space.
+    """
+    return abs(cell.i - end.i) + abs(cell.j - end.j)
+
+def getAdjacent(cell, i_max, j_max, end):
+    """
+    This returns valid nearby cells to the current one.
+    """
+    adjCells = [] #List of nearby valid cells to return
+    if cell.i > 0: #Only check above if the i index is at least 1
+        if getCell(cell.i-1, cell.j).up or getCell(cell.i-1, cell.j) is end: #Checks if either you can move up into the cell above, or if it is the desired parking space.
+            adjCells.append(getCell(cell.i-1, cell.j)) #Adds the cell to the list to return if the conditions for validity are satisfied.
+
+    if cell.j > 0: #Only check to the left if the j index is at least 1
+        if getCell(cell.i, cell.j-1).left or getCell(cell.i, cell.j-1) is end: #As above, but for the left direction
+            adjCells.append(getCell(cell.i, cell.j-1))
+
+    if cell.i < i_max - 1: #Only check below if the i index is at least 1 from the bottom
+        if getCell(cell.i+1, cell.j).down or getCell(cell.i+1, cell.j) is end: #As above, but for the down direction
+            adjCells.append(getCell(cell.i+1, cell.j))
+
+    if cell.j < j_max - 1: #Only check to the right if the j index is at least 1 from the right
+        if getCell(cell.i, cell.j+1).right or getCell(cell.i, cell.j+1) is end: #As above, but for the rightward direction
+            adjCells.append(getCell(cell.i, cell.j+1))
+
+    return adjCells
+
+def display_path(start, end):
+    """
+    This traces back parent cells from the endpoint to take you to the start.
+    """
+    path = [] #This list will contain the path
+    currentCell = end #Starts at the endpoint, which is the desired parking space.
+    while currentCell.parent is not start: #Does the following until the starting point is reaches
+        currentCell = currentCell.parent #Selects the parent cell as the current one
+        path.append([currentCell.i, currentCell.j]) #Adds the parent cell
+    path.reverse() #Inverts the order of the list so it is in the order you travel to get to the parking space from the start
+    path.insert(0, [start.i, start.j]) #Adds the starting point to the beginning of the list
+    path.append([end.i, end.j]) #Adds the parking space to the end of the list
+    return path #Returns the path
+
+def updateCell(adj_cell, cell, end):
+    """
+    This updates the attributes of the adjacent cell being processed
+    """
+    adj_cell.g = cell.g + 1 #The distance travelled to get to the adjacent cell is the distance to get to the current cell + 1
+    adj_cell.h = h(adj_cell, end) #Calculates the value of h, the heuristic
+    adj_cell.parent = cell #Sets the current cell as the parent of the adjacent, note that this can override previous parents when a better route is found
+    adj_cell.f = adj_cell.g + adj_cell.h #Calculates f as the sum of g and h
+    return
+    
+#Main function
+    
+def main():
+    """
+    This is the main body of the code where the algorithm is implemented
+    """
+    i_max = len(grid) #Stores the height of the grid
+    j_max = len(grid[0]) #Stores the width of the grid
+    opened = [] #Opened cells are ones yet to be processed
+    closed = set() #Closed ones are cells which have been processed
+    cells = []
+    solved = False #The variable "solved" defaults to False, but it will be changed to True if a valid solution is found
+    
+    cellTypes = classify_cells(i_max, j_max) #Runs the classify_cells function from above to get the types of cells
+    shopEntrance = cellTypes[0]
+    parkingSpaces = cellTypes[1]
+    startLocation = cellTypes[2]
+    
+    if len(startLocation) != 0: #Checks that a starting location has actually been found
+        start = getCell(startLocation[0], startLocation[1])
+    else:
+        print("Starting location not found")
+        return False #If no start location has been found, the script cannot run so the main function simply returns.
+    
+    if len(parkingSpaces) != 0: #A similar check to above in order to verify that empty parking spaces exist.
+        end = getCell(parkingSpaces[0][0], parkingSpaces[0][1]) #If it does exist, this parking space is chosen as the endpoint
+    else:
+        print("Parking spaces not found")
+        return False
+
+    if len(shopEntrance) == 0: #Checks that there is a shop entrance.
+        print("Shop entrance not found")
+        return False
+    
+    #Main code
+        
+    for i in parkingSpaces: #Appends the taxicab distance of each space to its coordinates
+        i.append(taxicabDistance(i, shopEntrance))
+        
+    parkingSpaces = sorted(parkingSpaces, key=lambda space: space[2]) #Sorts the spaces by this distance
+    shortestTaxicab = parkingSpaces[0][-1]
+    #print(shortestTaxicab)
+    
+    for i in parkingSpaces: #Removes the distance from the coordinates so they are left as they were before
+        i.remove(i[-1])
+    
+    #Below is the implementation of the A* algorithm
+    
+    opened.append((start.f, start)) #Define the opened list
+    while len(opened): #While there are still elements in the opened list
+        f, cell = opened.pop(0) #Return and remove the 0th element of opened (pop)
+        closed.add(cell) #Add the cell to the closed list so it is not processed again
+        if cell is end: #If the end cell is found (the parking space), the path to reach it is displayed.
+            final_Path = display_path(start, end)
+            solved = True #"solved" will then be set to True
+            break #Break the while loop as the path has been found
+        adj_cells = getAdjacent(cell, i_max, j_max, end) #Get the adjacent cells
+        for adj_cell in adj_cells: #Iterate through each adjacent cell
+            if adj_cell not in closed: #Check it is not in the closed list of cells which do not need to be processed
+                if (adj_cell.f, adj_cell) in opened: #Check if it is in the opened list which does need to be processed
+                    if adj_cell.g > cell.g + 1:
+                        updateCell(adj_cell, cell, end)
+                else: #If the adjacent cell is not in opened, but also not in closed, add it to opened.
+                    updateCell(adj_cell, cell, end) #Update the attributes of this cell
+                    opened.append((adj_cell.f, adj_cell)) #Add it to opened
+                    opened = sorted(opened, key=lambda x: x[0]) #Sort the opened list by f values
+                    
+    if not solved: #If at the end the program, no path has been found and solved is still set to False, do the following
+        print("Unable to find a path")
+        return False
+    
+    return [shortestTaxicab, final_Path] #Return the shortest distance and the final path
+
+output = []
+for i in levels: #Iterates through each level and runs the main() function to search for the best space for that floor and its walking distance to the shop entrance
+    grid = i
+    output.append(main()) #Store the paths and distances
+    output[-1].append(levels.index(i)) #Append to each path the level it is on
+while False in output: #Removes all instances of invalid levels where the main() function returned False
+    output.remove(False)
+output = sorted(output, key=lambda x: x[0]) #Ranks the levels of the car park by the walking distance from the best space of each to the shop entrance
+
+level = output[0][2]
+path = output[0][1]
+
+print("Level: " + str(level)) #Outputs the level
+print("Path: " + str(path)) #Outputs the path
+
+###########
+
+#End of James' Code, beginning of Dan's
+
+###########
+
+#path = [[0, 1], [0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [4, 1], [5, 1], [5, 2], [5, 3], [5, 4], [4, 4], [3, 4], [3, 3], [3, 2]]
+
+enti = 0
+entj = 0
+grid = levels[level]
+
+#grid = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
+    #[["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+    #[["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
+    #[["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
+    #[["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
+    #[["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
+
+#cells key:
+#0 - space
+#1 - road
+#2 - wall
+#3 - start
+#4 - exit
+#5 - direction
+
+i_max = len(grid)
+j_max = len(grid[0])
+for j in range(j_max):
+    for i in range(i_max):
+        currentSquare = grid[i][j]
+        if "RR" in currentSquare or "RL" in currentSquare or "RU" in currentSquare or "RD" in currentSquare:
+            grid[i][j] = [1]
+        if "E" in currentSquare:
+            grid[i][j] = [3]
+        if "S" in currentSquare:
+            grid[i][j] = [3]
+            enti = i
+            entj = j
+        if "P" in currentSquare or "PD" in currentSquare: #Spaces
+            grid[i][j] = [0]
+        if "W" in currentSquare: #Walls
+            grid[i][j] = [2]
+            
+for n in path:
+    grid[n[0]][n[1]] = [5]
+
+A = np.matrix(np.array(grid))
+
+enti = 0
+entj = 0
+correctioni = 0
+correctionj = 0
+
+if enti == (shape(A)[0] - 1) or entj == 0:
+    correctioni = -50
+else:
+    correctioni = 50
+if entj == 0:
+    correctionj = -150
+
+matshow(A, interpolation='nearest')
+annotate('Entrance - You are here', xy = (entj, enti), xytext= (entj + correctionj, enti + correctioni), xycoords='data',
+         textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+axis('off')
+show()
+close()
