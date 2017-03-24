@@ -7,15 +7,16 @@ grid0 = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
     [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
     [["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
     [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
-    
+
+
 grid1 = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
 [["RU"], ["W"], ["RD"], ["W"], ["P"]],
 [["RU"], ["RR"], ["RR", "RD"], ["E"], ["RU"]],
 [["RU"], ["W"], ["RD"], ["W"], ["RU"]],
 [["S"], ["W"], ["RD"], ["RR"], ["RR"]]]
     
-#levels = [grid0, grid1]
-levels = [grid0]
+levels = [grid0, grid1]
+#levels = [grid0]
 
 class cell():
     """
@@ -159,17 +160,17 @@ def main():
     if len(startLocation) != 0: #Checks that a starting location has actually been found
         start = getCell(startLocation[0], startLocation[1])
     else:
-        print("Starting location not found")
+        print("Starting location not found on floor " + str(levels.index(grid)))
         return False #If no start location has been found, the script cannot run so the main function simply returns.
     
     if len(parkingSpaces) != 0: #A similar check to above in order to verify that empty parking spaces exist.
         end = getCell(parkingSpaces[0][0], parkingSpaces[0][1]) #If it does exist, this parking space is chosen as the endpoint
     else:
-        print("Parking spaces not found")
+        print("Parking spaces not found on floor " + str(levels.index(grid)))
         return False
 
     if len(shopEntrance) == 0: #Checks that there is a shop entrance.
-        print("Shop entrance not found")
+        print("Shop entrance not found on floor" + str(levels.index(grid)))
         return False
     
     #Main code
@@ -206,78 +207,87 @@ def main():
                     opened = sorted(opened, key=lambda x: x[0]) #Sort the opened list by f values
                     
     if not solved: #If at the end the program, no path has been found and solved is still set to False, do the following
-        print("Unable to find a path")
+        #print("Unable to find a path")
         return False
     
     return [shortestTaxicab, final_Path] #Return the shortest distance and the final path
 
 output = []
+solved = True #Defaults to true
+
 for i in levels: #Iterates through each level and runs the main() function to search for the best space for that floor and its walking distance to the shop entrance
     grid = i
-    output.append(main()) #Store the paths and distances
-    output[-1].append(levels.index(i)) #Append to each path the level it is on
-while False in output: #Removes all instances of invalid levels where the main() function returned False
-    output.remove(False)
-output = sorted(output, key=lambda x: x[0]) #Ranks the levels of the car park by the walking distance from the best space of each to the shop entrance
+    temp = main()
+    if temp != False: #Ignores instances of invalid or full levels where the main() function returned False
+        output.append(temp) #Store the paths and distances
+        output[-1].append(levels.index(i)) #Append to each path the level it is on
+        output = sorted(output, key=lambda x: x[0]) #Ranks the levels of the car park by the walking distance from the best space of each to the shop entrance
 
-level = output[0][2]
-path = output[0][1]
+if not output: #Checks if all levels returned false as no path was found
+    solved = False
+    print("No spaces found")
 
-print("Level: " + str(level)) #Outputs the level
-print("Path: " + str(path)) #Outputs the path
+if solved: #If at least one level has a space to which a path was found
+    level = output[0][2]
+    path = output[0][1]
 
-###########
+    print("Level: " + str(level)) #Outputs the level
+    print("Path: " + str(path)) #Outputs the path
+    displayImage() #Displays the path
 
-#End of James' Code, beginning of Dan's
+    ###########
 
-###########
+    #End of James' Code, beginning of Dan's
 
-grid = levels[level]
+    ###########
 
-#cells key:
-#0 - space
-#1 - road
-#2 - wall
-#3 - start
-#4 - exit
-#5 - direction
+    def displayImage():
+        grid = levels[level]
 
-i_max = len(grid)
-j_max = len(grid[0])
-for j in range(j_max):
-    for i in range(i_max):
-        currentSquare = grid[i][j]
-        if "RR" in currentSquare or "RL" in currentSquare or "RU" in currentSquare or "RD" in currentSquare:
-            grid[i][j] = [1]
-        if "E" in currentSquare:
-            grid[i][j] = [3]
-        if "S" in currentSquare:
-            grid[i][j] = [3]
-            enti = i
-            entj = j
-        if "P" in currentSquare or "PD" in currentSquare: #Spaces
-            grid[i][j] = [0]
-        if "W" in currentSquare: #Walls
-            grid[i][j] = [2]
-            
-for n in path:
-    grid[n[0]][n[1]] = [5]
+        #cells key:
+        #0 - space
+        #1 - road
+        #2 - wall
+        #3 - start
+        #4 - exit
+        #5 - direction
 
-A = np.matrix(np.array(grid))
+        i_max = len(grid)
+        j_max = len(grid[0])
+        for j in range(j_max):
+            for i in range(i_max):
+                currentSquare = grid[i][j]
+                if "RR" in currentSquare or "RL" in currentSquare or "RU" in currentSquare or "RD" in currentSquare:
+                    grid[i][j] = [1]
+                if "E" in currentSquare:
+                    grid[i][j] = [3]
+                if "S" in currentSquare:
+                    grid[i][j] = [3]
+                    enti = i
+                    entj = j
+                if "P" in currentSquare or "PD" in currentSquare: #Spaces
+                    grid[i][j] = [0]
+                if "W" in currentSquare: #Walls
+                    grid[i][j] = [2]
 
-correctioni = 0
-correctionj = 0
+        for n in path:
+            grid[n[0]][n[1]] = [5]
 
-if enti == (shape(A)[0] - 1) or entj == 0:
-    correctioni = -50
-else:
-    correctioni = 50
-if entj == 0:
-    correctionj = -150
+        A = np.matrix(np.array(grid))
 
-matshow(A, interpolation='nearest')
-annotate('Entrance - You are here', xy = (entj, enti), xytext= (entj + correctionj, enti + correctioni), xycoords='data',
-         textcoords='offset points', arrowprops=dict(arrowstyle="->"))
-axis('off')
-show()
-close()
+        correctioni = 0
+        correctionj = 0
+
+        if enti == (shape(A)[0] - 1) or entj == 0:
+            correctioni = -50
+        else:
+            correctioni = 50
+        if entj == 0:
+            correctionj = -150
+
+        matshow(A, interpolation='nearest')
+        annotate('Entrance - You are here', xy = (entj, enti), xytext= (entj + correctionj, enti + correctioni), xycoords='data',
+                 textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+        axis('off')
+        show()
+        close()
