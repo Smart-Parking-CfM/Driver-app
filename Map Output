@@ -37,8 +37,9 @@ for n in range(len(path)):
     
 A = np.matrix(np.array(grid))
     
-from pylab import *
-figure(1)
-plt.matshow(A, vmin=0, vmax=3)      # top/bottom rows get min/max colors, respectively
-grid(False)
+matshow(A, interpolation='nearest')
+annotate('Entrance', xy = (1, 0), xytext= (1, 50), xycoords='data',
+         textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+axis('off')
 show()
+close()
