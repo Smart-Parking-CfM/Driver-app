@@ -14,7 +14,8 @@ grid1 = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
 [["RU"], ["W"], ["RD"], ["W"], ["RU"]],
 [["S"], ["W"], ["RD"], ["RR"], ["RR"]]]
     
-levels = [grid0, grid1]
+#levels = [grid0, grid1]
+levels = [grid0]
 
 class cell():
     """
@@ -264,8 +265,6 @@ for n in path:
 
 A = np.matrix(np.array(grid))
 
-enti = start.i
-entj = start.j
 correctioni = 0
 correctionj = 0
 
