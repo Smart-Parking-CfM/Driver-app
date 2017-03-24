@@ -44,8 +44,20 @@ for n in range(len(path)):
 
 A = np.matrix(np.array(grid))
 
+enti = 0
+entj = 0
+correctioni = 0
+correctionj = 0
+
+if enti == (shape(A)[0] - 1) or entj == 0:
+    correctioni = -50
+else:
+    correctioni = 50
+if entj == 0:
+    correctionj = -150
+
 matshow(A, interpolation='nearest')
-annotate('Entrance - You are here', xy = (entj, enti), xytext= (entj, enti + 50), xycoords='data',
+annotate('Entrance - You are here', xy = (entj, enti), xytext= (entj + correctionj, enti + correctioni), xycoords='data',
          textcoords='offset points', arrowprops=dict(arrowstyle="->"))
 axis('off')
 show()
