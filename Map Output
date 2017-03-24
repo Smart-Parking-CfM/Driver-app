@@ -3,6 +3,9 @@ from pylab import *
 
 path = [[0, 1], [0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [4, 1], [5, 1], [5, 2], [5, 3], [5, 4], [4, 4], [3, 4], [3, 3], [3, 2]]
 
+enti = 0
+entj = 0
+
 grid = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
     [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
     [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
@@ -25,8 +28,12 @@ for j in range(j_max):
         currentSquare = grid[i][j]
         if "RR" in currentSquare or "RL" in currentSquare or "RU" in currentSquare or "RD" in currentSquare:
             grid[i][j] = [1]
-        if "E" in currentSquare or "S" in currentSquare:
+        if "E" in currentSquare:
             grid[i][j] = [3]
+        if "S" in currentSquare:
+            grid[i][j] = [3]
+            enti = i
+            entj = j
         if "P" in currentSquare or "PD" in currentSquare: #Spaces
             grid[i][j] = [0]
         if "W" in currentSquare: #Walls
@@ -34,11 +41,11 @@ for j in range(j_max):
             
 for n in range(len(path)):
     grid[path[n][0]][path[n][1]] = [5]
-    
+
 A = np.matrix(np.array(grid))
-    
+
 matshow(A, interpolation='nearest')
-annotate('Entrance', xy = (1, 0), xytext= (1, 50), xycoords='data',
+annotate('Entrance - You are here', xy = (entj, enti), xytext= (entj, enti + 50), xycoords='data',
          textcoords='offset points', arrowprops=dict(arrowstyle="->"))
 axis('off')
 show()
