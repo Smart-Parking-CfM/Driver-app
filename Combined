@@ -231,18 +231,7 @@ print("Path: " + str(path)) #Outputs the path
 
 ###########
 
-#path = [[0, 1], [0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [4, 1], [5, 1], [5, 2], [5, 3], [5, 4], [4, 4], [3, 4], [3, 3], [3, 2]]
-
-enti = 0
-entj = 0
 grid = levels[level]
-
-#grid = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
-    #[["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
-    #[["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
-    #[["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
-    #[["RD"], ["RR"], ["W"], ["W"], ["RU"], ["W"], ["W"], ["RD"]], 
-    #[["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
 
 #cells key:
 #0 - space
@@ -275,8 +264,8 @@ for n in path:
 
 A = np.matrix(np.array(grid))
 
-enti = 0
-entj = 0
+enti = start.i
+entj = start.j
 correctioni = 0
 correctionj = 0
 
