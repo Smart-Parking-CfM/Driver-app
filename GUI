@@ -1,4 +1,33 @@
-import tkinter
-top = tkinter.Tk()
-# Code to add widgets will go here...
-top.mainloop()
+import tkinter as tk
+from tkinter import *
+from tkinter import ttk
+root = tk.Tk()
+root.title('Please Select the Size of your Car Park')
+def HelpPopUp():
+        popup = tk.Tk()
+        popup.wm_title("Help")
+        label = ttk.Label(popup, text=msg)
+        label.pack(side="top", padx=10, pady=5)
+        B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
+        B1.pack()
+        popup.mainloop()
+def creatematrix():
+    xval=int(Width.get())
+    yval=(int(Height.get())+1)
+    for x in range (xval):
+        for y in range (yval):
+            ent1 = Entry(width=5)
+            ent1.grid(row=(y+1), column=x)
+
+Label(root, text="Width").grid(row=0, column=1)
+Label(root, text="Height").grid(row=0,column =3)
+Width = Entry(width=5)
+Width.grid(row=0, column=2)#text box
+Height = Entry(width=5)
+Height.grid(row=0, column=4)#text box
+MatrixButton = Button(root, text='Create Matrix', command=creatematrix)
+MatrixButton.grid(column=5, row=0, columnspan=3, padx=4)
+helpbutton = Button(root, text='Help',command=HelpPopUp)
+helpbutton.grid(column=11, row=0, padx=4)
+msg='This will have a key of possible inputs and any other useful info.'
+root.mainloop()
