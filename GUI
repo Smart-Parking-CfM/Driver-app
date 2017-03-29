@@ -1,33 +1,73 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
+
 root = tk.Tk()
 root.title('Please Select the Size of your Car Park')
-def HelpPopUp():
+msg='Please only use whole numbers for grid size, between 1 and 100.'
+
+def popupmsg():#the function that opens the error message
         popup = tk.Tk()
-        popup.wm_title("Help")
+        popup.wm_title("Error")
         label = ttk.Label(popup, text=msg)
         label.pack(side="top", padx=10, pady=5)
         B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
         B1.pack()
         popup.mainloop()
-def creatematrix():
-    xval=int(Width.get())
-    yval=(int(Height.get())+1)
-    for x in range (xval):
-        for y in range (yval):
-            ent1 = Entry(width=5)
-            ent1.grid(row=(y+1), column=x)
+        
+def HelpPopUp():#the function that opens the help window
+        popup = tk.Tk()
+        popup.wm_title("Help")
+        label = ttk.Label(popup, text=helptext)
+        label.pack(side="top", padx=10, pady=5)
+        B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
+        B1.pack()
+        popup.mainloop()
 
-Label(root, text="Width").grid(row=0, column=1)
-Label(root, text="Height").grid(row=0,column =3)
+dropDownListMatrix = []
+        
+def creatematrix():#the function that creates the grid of dropdowns
+    inputvalues=('RU','RL','RD','RR','P','PD','E','S')
+    try: #making sure that the dimension inputs are positive integers 
+        int(Width.get())
+    except:
+        popupmsg()
+    try: 
+        int(Height.get())
+    except:
+        popupmsg()
+        
+    xval=int(Width.get())#turning the dimensions into integers
+    yval=int(Height.get())
+    
+    if xval<1 or yval<1 or xval>100 or yval>100:#setting a range of possible dimensions
+        return popupmsg()
+    
+    for x in range (xval):#creating the matrix
+        tempRow = []
+        for y in range (yval):
+            variable = StringVar(root)
+            ent1 = OptionMenu(root, variable, *inputvalues, command=getDropDownValue)#creating the dropdown menus
+            ent1.config(width=3)
+            ent1.grid(row=(y+1), column=x)
+            tempRow.append(ent1)
+        dropDownListMatrix.append(tempRow)
+    print(dropDownListMatrix)
+
+def getDropDownValue(value):
+    print(value)
+    
+Label(root, text="Width").grid(row=0, column=0)#labeling input boxes
+Label(root, text="Height").grid(row=0,column =2)
 Width = Entry(width=5)
-Width.grid(row=0, column=2)#text box
+Width.grid(row=0, column=1)#positioning input boxes
 Height = Entry(width=5)
-Height.grid(row=0, column=4)#text box
-MatrixButton = Button(root, text='Create Matrix', command=creatematrix)
-MatrixButton.grid(column=5, row=0, columnspan=3, padx=4)
-helpbutton = Button(root, text='Help',command=HelpPopUp)
-helpbutton.grid(column=11, row=0, padx=4)
-msg='This will have a key of possible inputs and any other useful info.'
+Height.grid(row=0, column=3)
+MatrixButton = Button(root, text='Create Grid', command=creatematrix)#button to create matrix
+MatrixButton.grid(column=4, row=0, columnspan=2, padx=4)
+creatematrix = Button(root, text='Export Floor')#not yet functional next floor button
+creatematrix.grid(column=7, row=0, columnspan=2, padx=4)
+helpbutton = Button(root, text='Help',command=HelpPopUp)#help button
+helpbutton.grid(column=6, row=0, padx=4)
+helptext='This will have a key of possible inputs and any other useful info.'
 root.mainloop()
