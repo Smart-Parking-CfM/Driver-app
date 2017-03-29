@@ -40,6 +40,7 @@ def creatematrix():#the function that creates the grid of dropdowns
     
     if xval<1 or yval<1 or xval>100 or yval>100:#setting a range of possible dimensions
         return popupmsg()
+    global dropDownLists
     dropDownLists = {}
     for x in range (xval):#creating the matrix
         for y in range (yval):
@@ -47,7 +48,7 @@ def creatematrix():#the function that creates the grid of dropdowns
             dropDownLists[(x, y)] = OptionMenu(root, variable, *inputvalues, command=getDropDownValue)#creating the dropdown menus
             dropDownLists[(x, y)].config(width=3)
             dropDownLists[(x, y)].grid(row=(y+1), column=x)
-    print(dropDownLists)
+    print(dropDownLists) #This is just for testing and can be removed
 
 def getDropDownValue(value):
     print(value)
