@@ -1,39 +1,71 @@
-import tkinter as tk
+import tkinter as tk #importing the tkinter package
 from tkinter import *
 from tkinter import ttk
-
-root = tk.Tk()
-root.title('Please Select the Size of your Car Park')
-msg='Please only use whole numbers for grid size, between 1 and 100.'
-
+root = tk.Tk()#creating the main widget
+root.title('Smart Parking')#giving the window a title
+emptyerrortext='Please add information about your car park before exporting.'#writing error message
+msg='Please only use whole numbers for grid size, between 1 and 100.'#writing error message
+carpark=[]#creating the list that contains information about the whole car park
+def export():#defining the function to export the list to a text file
+    if carpark==[]:#to make sure that users dont export an empty list befire inputting data
+        return emptyerror()#returns a function that opens an error message
+    else:
+        exportfloor()#adding the final floor to the 'carpark' list 
+        carparkmap = open('carparkmap.txt', 'w')#opening a textfile in write mode
+        carparkmap.write(str(carpark))#adding the 'carpark' list to the text file as a string
+def exportfloor():#a function to add a floor's data to the 'carpark' list
+    row=[]#creating an empty list for the rows
+    floor=[]#creating an empty list for the floors
+    xval=int(Width.get())#turning the width into an integer
+    yval=int(Height.get())#turning the height into an integer
+    for y in range (yval):
+        for x in range (xval):#2 stacked for loops mean the code inside is performed for every x and y combination within the ranges of x and y
+            element=[]#creating a list for each element aswell as removing the previous input from the last x and y value combination
+            element.append(dropDownLists[(x,y)].get())#adding the input to the element list
+            row.append(element)#adding the element list to the row list for all x and 1 y value
+        floor.append(row)#adding each row list to the floor list
+        row=[]#resetting the row list for the next y value
+    carpark.append(floor)#adding each floor list to the 'carpark' list
+    for x in range (xval):#2 stacked for loops mean the code inside is performed for every x and y combination within the ranges of x and y
+        for y in range (yval):
+            dropDownLists[(x, y)].set(' ')#resetting each dropdown box to blank after inputs have been stored
+    
+def emptyerror():#the function that opens the blank matrix error message
+        emptyerror = tk.Tk()#creating a window, seperate from the main one
+        emptyerror.wm_title("Error")#giving the window a title
+        label = ttk.Label(emptyerror, text=emptyerrortext)
+        label.pack(side="top", padx=10, pady=5)
+        B2 = ttk.Button(emptyerror, text="Okay", command = emptyerror.destroy)#creating a button to close the error window
+        B2.pack()
+        emptyerror.mainloop()
+        
 def popupmsg():#the function that opens the error message
-        popup = tk.Tk()
-        popup.wm_title("Error")
+        popup = tk.Tk()#creating a window, seperate from the main one
+        popup.wm_title("Error")#giving the window a title
         label = ttk.Label(popup, text=msg)
         label.pack(side="top", padx=10, pady=5)
-        B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
+        B1 = ttk.Button(popup, text="Okay", command = popup.destroy)#creating a button to close the error window
         B1.pack()
         popup.mainloop()
         
 def HelpPopUp():#the function that opens the help window
         popup = tk.Tk()
-        popup.wm_title("Help")
+        popup.wm_title("Help")#giving the window a title
         label = ttk.Label(popup, text=helptext)
         label.pack(side="top", padx=10, pady=5)
-        B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
+        B1 = ttk.Button(popup, text="Okay", command = popup.destroy)#creating a button to close the help window
         B1.pack()
         popup.mainloop()
-
 def creatematrix():#the function that creates the grid of dropdowns
-    inputvalues=('RU','RL','RD','RR','P','PD','E','S')
+    inputvalues=('RU','RL','RD','RR','P','PD','E','S')#a list of all possible inputs
     try: #making sure that the dimension inputs are positive integers 
         int(Width.get())
     except:
-        popupmsg()
+        popupmsg()#returning an error window if the width input isn't an integer
     try: 
         int(Height.get())
     except:
-        popupmsg()
+        popupmsg()#returning an error window if the width input isn't an integer
         
     xval=int(Width.get())#turning the dimensions into integers
     yval=int(Height.get())
@@ -42,29 +74,25 @@ def creatematrix():#the function that creates the grid of dropdowns
         return popupmsg()
     global dropDownLists
     dropDownLists = {}
-    for x in range (xval):#creating the matrix
+    for x in range (xval):#2 stacked for loops mean the code inside is performed for every x and y combination within the ranges of x and y
         for y in range (yval):
-            dropDownLists[(x, y)] = StringVar(root)
+            dropDownLists[(x, y)] = StringVar(root)#creating all the drop down menus in the grid
             ent1 = OptionMenu(root, dropDownLists[(x, y)], *inputvalues, command=getDropDownValue)#creating the dropdown menus
-            ent1.config(width=3)
-            ent1.grid(row=(y+1), column=x)
-    print(dropDownLists) #This is just for testing and can be removed
-    print(dropDownLists[(1,1)].get())
-
-def getDropDownValue(value):
-    print(value)
-    
+            ent1.config(width=3)#setting the width of the entry box
+            ent1.grid(row=(y+1), column=x)#positioning the dropdown menus on the grid
 Label(root, text="Width").grid(row=0, column=0)#labeling input boxes
 Label(root, text="Height").grid(row=0,column =2)
-Width = Entry(width=5)
+Width = Entry(width=5)#setting the width of the width input box
 Width.grid(row=0, column=1)#positioning input boxes
-Height = Entry(width=5)
+Height = Entry(width=5)#setting the width of the height input box
 Height.grid(row=0, column=3)
-MatrixButton = Button(root, text='Create Grid', command=creatematrix)#button to create matrix
-MatrixButton.grid(column=4, row=0, columnspan=2, padx=4)
-creatematrix = Button(root, text='Export Floor')#not yet functional next floor button
-creatematrix.grid(column=7, row=0, columnspan=2, padx=4)
-helpbutton = Button(root, text='Help',command=HelpPopUp)#help button
-helpbutton.grid(column=6, row=0, padx=4)
-helptext='This will have a key of possible inputs and any other useful info.'
+MatrixButton = Button(root, text='Create Grid', command=creatematrix)#button to create the grid of dropdown menus
+MatrixButton.grid(column=4, row=0, columnspan=2, padx=4)#positioning the button
+export = Button(root, text='Export',command=export)#not yet functional next floor button
+export.grid(column=9, row=0, columnspan=2, padx=4)#positioning the button
+creatematrix = Button(root, text='Add Floor',command=exportfloor)#button to add inputs to 'carpark' list
+creatematrix.grid(column=7, row=0, columnspan=2, padx=4)#positioning the button
+helpbutton = Button(root, text='Help',command=HelpPopUp)#button to open up help window
+helpbutton.grid(column=6, row=0, padx=4)#positioning the button
+helptext=' RU = A road you can access from below \n RR = A road you can access from the left \n RL = A road you can access from the right \n RD = A road you can access from above \n P = Parking space \n PD = Disabled parking space \n E = Shop entrance \n S = Car park entrance'
 root.mainloop()
