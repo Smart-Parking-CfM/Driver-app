@@ -58,6 +58,12 @@ def displayImage():
     show()
     close()
 
+###########
+
+#End of Dan's Code, beginning of James'
+
+###########
+
 """
 testGrid0 = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
     [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
@@ -75,12 +81,6 @@ testGrid1 = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
 
 levels = [grid0, grid1]
 """
-
-###########
-
-#End of Dan's Code, beginning of James'
-
-###########
 
 class cell():
     """
