@@ -1,7 +1,65 @@
 import numpy as np
 from pylab import *
 
-grid0 = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
+###########
+
+#Beginning of Dan's code
+
+###########
+
+def displayImage():
+    grid = levels[level]
+
+    #cells key:
+    #0 - space
+    #1 - road
+    #2 - wall
+    #3 - start
+    #4 - exit
+    #5 - direction
+
+    i_max = len(grid)
+    j_max = len(grid[0])
+    for j in range(j_max):
+        for i in range(i_max):
+            currentSquare = grid[i][j][0]
+            if "RR" in currentSquare or "RL" in currentSquare or "RU" in currentSquare or "RD" in currentSquare:
+                grid[i][j] = [1]
+            if "E" in currentSquare:
+                grid[i][j] = [3]
+            if "S" in currentSquare:
+                grid[i][j] = [3]
+                enti = i
+                entj = j
+            if "P" in currentSquare or "PD" in currentSquare: #Spaces
+                grid[i][j] = [0]
+            if "W" in currentSquare: #Walls
+                grid[i][j] = [2]
+
+    for n in path:
+        grid[n[0]][n[1]] = [5]
+
+    A = np.matrix(np.array(grid))
+
+    correctioni = 0
+    correctionj = 0
+
+    if enti == (shape(A)[0] - 1) or entj == 0:
+        correctioni = -50
+    else:
+        correctioni = 50
+    if entj == 0:
+        correctionj = -150
+
+    matshow(A, interpolation='nearest')
+    annotate('Entrance - You are here', xy = (entj, enti), xytext= (entj + correctionj, enti + correctioni), xycoords='data',
+            textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+    axis('off')
+    show()
+    close()
+
+"""
+testGrid0 = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
     [["RD"], ["W"], ["RL"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
     [["RD"], ["W"], ["W"], ["RU"], ["W"], ["RU"], ["W"], ["RD"]], 
     [["RD"], ["W"], ["P"], ["RL"], ["RU"], ["RR"], ["W"], ["RD"]], 
@@ -9,14 +67,20 @@ grid0 = [[["RL"], ["S"], ["W"], ["E"], ["W"], ["RU"], ["RR"], ["RR"]],
     [["W"], ["RD"], ["RR"], ["RR"], ["RR"], ["RR"], ["W"], ["P"]]]
 
 
-grid1 = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
+testGrid1 = [[["RU"], ["RR"], ["RR"], ["RR"], ["W"]],
 [["RU"], ["W"], ["RD"], ["W"], ["P"]],
 [["RU"], ["RR"], ["RR", "RD"], ["E"], ["RU"]],
 [["RU"], ["W"], ["RD"], ["W"], ["RU"]],
 [["S"], ["W"], ["RD"], ["RR"], ["RR"]]]
-    
+
 levels = [grid0, grid1]
-#levels = [grid0]
+"""
+
+###########
+
+#End of Dan's Code, beginning of James'
+
+###########
 
 class cell():
     """
@@ -52,7 +116,10 @@ def classify_cells(i_max, j_max, disabled=False):
     shopEntrance = []
     for j in range(j_max):
         for i in range(i_max): #This iterates through each cell of the grid
-            currentSquare = grid[i][j] #Selects a current cell to look at
+            #print(grid[i][j])
+            #print(grid)
+            currentSquare = grid[i][j][0] #Selects a current cell to look at
+            #print(currentSquare) ################
             currentCell = cell(i,j)
             if "E" in currentSquare: #Checks if the current cell is the shop entrance
                 shopEntrance = [i,j] #If so, this is stored as a variable
@@ -212,9 +279,11 @@ def main():
     
     return [shortestTaxicab, final_Path] #Return the shortest distance and the final path
 
+
+with open('carparkmap.txt', 'r') as carParkMapFile: #Read the map from the text file created by the GUI
+    levels = eval(carParkMapFile.read())
 output = []
 solved = True #Defaults to true
-
 for i in levels: #Iterates through each level and runs the main() function to search for the best space for that floor and its walking distance to the shop entrance
     grid = i
     temp = main()
@@ -234,60 +303,3 @@ if solved: #If at least one level has a space to which a path was found
     print("Level: " + str(level)) #Outputs the level
     print("Path: " + str(path)) #Outputs the path
     displayImage() #Displays the path
-
-    ###########
-
-    #End of James' Code, beginning of Dan's
-
-    ###########
-
-    def displayImage():
-        grid = levels[level]
-
-        #cells key:
-        #0 - space
-        #1 - road
-        #2 - wall
-        #3 - start
-        #4 - exit
-        #5 - direction
-
-        i_max = len(grid)
-        j_max = len(grid[0])
-        for j in range(j_max):
-            for i in range(i_max):
-                currentSquare = grid[i][j]
-                if "RR" in currentSquare or "RL" in currentSquare or "RU" in currentSquare or "RD" in currentSquare:
-                    grid[i][j] = [1]
-                if "E" in currentSquare:
-                    grid[i][j] = [3]
-                if "S" in currentSquare:
-                    grid[i][j] = [3]
-                    enti = i
-                    entj = j
-                if "P" in currentSquare or "PD" in currentSquare: #Spaces
-                    grid[i][j] = [0]
-                if "W" in currentSquare: #Walls
-                    grid[i][j] = [2]
-
-        for n in path:
-            grid[n[0]][n[1]] = [5]
-
-        A = np.matrix(np.array(grid))
-
-        correctioni = 0
-        correctionj = 0
-
-        if enti == (shape(A)[0] - 1) or entj == 0:
-            correctioni = -50
-        else:
-            correctioni = 50
-        if entj == 0:
-            correctionj = -150
-
-        matshow(A, interpolation='nearest')
-        annotate('Entrance - You are here', xy = (entj, enti), xytext= (entj + correctionj, enti + correctioni), xycoords='data',
-                 textcoords='offset points', arrowprops=dict(arrowstyle="->"))
-        axis('off')
-        show()
-        close()
