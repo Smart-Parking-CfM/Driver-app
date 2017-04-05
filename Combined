@@ -8,6 +8,7 @@ from pylab import *
 ###########
 
 def displayImage():
+    "A function that will print out a map of the carpark and route to assigned space"
     grid = levels[level]
 
     #cells key:
@@ -18,45 +19,56 @@ def displayImage():
     #4 - exit
     #5 - direction
 
-    i_max = len(grid)
+    i_max = len(grid) #iterating through existing lettered carpark matrix and converting to a numeric matrix
     j_max = len(grid[0])
     for j in range(j_max):
         for i in range(i_max):
             currentSquare = grid[i][j][0]
-            if "RR" in currentSquare or "RL" in currentSquare or "RU" in currentSquare or "RD" in currentSquare:
+            if "RR" in currentSquare or "RL" in currentSquare or "RU" in currentSquare or "RD" in currentSquare: #Roads
                 grid[i][j] = [1]
-            if "E" in currentSquare:
+            if "E" in currentSquare: #Shop entrance
                 grid[i][j] = [3]
-            if "S" in currentSquare:
+                exi = i
+                exj = j
+            if "S" in currentSquare: #Car park entrance
                 grid[i][j] = [3]
                 enti = i
                 entj = j
             if "P" in currentSquare or "PD" in currentSquare: #Spaces
                 grid[i][j] = [0]
+                spacei = i
+                spacej = j
             if "W" in currentSquare: #Walls
                 grid[i][j] = [2]
 
-    for n in path:
+    for n in path: #add in the path coordinates
         grid[n[0]][n[1]] = [5]
 
-    A = np.matrix(np.array(grid))
+    A = np.matrix(np.array(grid)) #convert to a numpy matrix
 
     correctioni = 0
     correctionj = 0
 
-    if enti == (shape(A)[0] - 1) or entj == 0:
-        correctioni = -50
+    if enti == (shape(A)[0] - 1) or entj == 0: #checking if cp entrance is on lhs or bottom of cp
+        correctioni = -50 #if cp entrance is on lhs or bottom then a correction is added for the annotation
     else:
-        correctioni = 50
+        correctioni = 50 
     if entj == 0:
         correctionj = -150
 
-    matshow(A, interpolation='nearest')
-    annotate('Entrance - You are here', xy = (entj, enti), xytext= (entj + correctionj, enti + correctioni), xycoords='data',
-            textcoords='offset points', arrowprops=dict(arrowstyle="->"))
-    axis('off')
+    matshow(A, interpolation='nearest') #print a colourmap
+    annotate('CP Entrance - You are here', xy = (entj, enti), xytext= (entj + correctionj, enti + correctioni), xycoords='data',
+            textcoords='offset points', arrowprops=dict(arrowstyle="->")) #annotate cp entrance
+    annotate('Entrance', xy = (exj, exi), xytext= (exj - 10, exi - 5), xycoords='data',
+            textcoords='offset points') #annotate shop entrance
+    annotate('S', xy = (spacej, spacei), xytext= (spacej + 100, spacei - 0.5), xycoords='data',
+            textcoords='offset points', arrowprops=dict(arrowstyle="->")) #annotate space
+    axis('off') #don't show axis
     show()
     close()
+    print("CP Entrance = Car Park Entrance") #printing a key
+    print("Entrance = Shop Entrance/Lifts")
+    print("S = Your assigned space")
 
 ###########
 
