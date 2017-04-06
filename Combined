@@ -59,10 +59,10 @@ def displayImage():
     matshow(A, interpolation='nearest') #print a colourmap
     annotate('CP Entrance - You are here', xy = (entj, enti), xytext= (entj + correctionj, enti + correctioni), xycoords='data',
             textcoords='offset points', arrowprops=dict(arrowstyle="->")) #annotate cp entrance
-    annotate('Entrance', xy = (exj, exi), xytext= (exj - 10, exi - 5), xycoords='data',
+    annotate('ENT', xy = (exj, exi), xytext= (exj - 10, exi - 5), xycoords='data',
             textcoords='offset points') #annotate shop entrance
-    annotate('S', xy = (spacej, spacei), xytext= (spacej + 100, spacei - 0.5), xycoords='data',
-            textcoords='offset points', arrowprops=dict(arrowstyle="->")) #annotate space
+    annotate('SP', xy = (path[-1][1], path[-1][0]), xytext= (path[-1][1] - 10, path[-1][0] - 5), xycoords='data',
+            textcoords='offset points') #annotate space
     axis('off') #don't show axis
     show()
     close()
